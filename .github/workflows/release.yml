@@ -1,0 +1,74 @@
+name: Handle Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  generate:
+    name: Create release-artifacts
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install minimal stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - name: Run build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release
+      - name: Move/rename executable (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mv target/release/b0xx_updater b0xx_updater_linux_${{ github.event.release.tag_name }}
+      - name: Move/rename executable (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mv target/release/b0xx_updater b0xx_updater_macos_${{ github.event.release.tag_name }}
+      - name: Move/rename executable (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          mv target/release/b0xx_updater.exe b0xx_updater_windows_${{ github.event.release.tag_name }}.exe
+      - name: Upload Release Asset (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./b0xx_updater_linux_${{ github.event.release.tag_name }}
+          asset_name: b0xx_updater_linux_${{ github.event.release.tag_name }}
+          asset_content_type: application/zip
+      - name: Upload Release Asset (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./b0xx_updater_windows_${{ github.event.release.tag_name }}.exe
+          asset_name: b0xx_updater_windows_${{ github.event.release.tag_name }}.exe
+          asset_content_type: application/zip
+      - name: Upload Release Asset (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./b0xx_updater_macos_${{ github.event.release.tag_name }}
+          asset_name: b0xx_updater_macos_${{ github.event.release.tag_name }}
+          asset_content_type: application/zip

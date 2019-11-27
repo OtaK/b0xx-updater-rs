@@ -1,9 +1,14 @@
 [package]
 name = "b0xx-updater-rs"
 version = "0.1.0"
-authors = ["Mathieu Amiot <m.amiot@otak-arts.com>"]
+authors = ["Mathieu Amiot <amiot.mathieu@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+clap = "2.33.0"
+pretty_env_logger = "0.3.1"
+log = "0.4.8"
+failure = "0.1.6"
+failure_derive = "0.1.6"
+serde = { version = "1.0.103", features = ["derive"] }
+toml = "0.5.5"

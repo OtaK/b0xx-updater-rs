@@ -1,0 +1,28 @@
+[r1]
+name = "B0XX r1"
+id = "r1"
+partno = "atmega32u4"
+progid = "avr109"
+baudrate = 57600
+memtype = "flash"
+op = "w"
+active = true
+
+[[r1.firmwares]]
+version = "2.11"
+date = 2019-10-08T05:17:00Z
+active = true
+legal = true
+filename = "B0XX_r1_2.11.hex"
+filefmt = "i"
+
+[r2]
+name = "B0XX r2"
+id = "r2"
+partno = ""
+progid = ""
+baudrate = 0
+memtype = "flash"
+op = "w"
+active = false
+firmwares = []

@@ -9,9 +9,9 @@ use clap::{clap_app, crate_authors, crate_description, crate_version};
 
 fn main() -> Result<(), error::UpdaterError> {
     if let Ok(env) = std::env::var("RUST_LOG") {
-        std::env::set_var("RUST_LOG", format!("b0xx_viewer=info,{}", env));
+        std::env::set_var("RUST_LOG", format!("b0xx_updater=info,{}", env));
     } else {
-        std::env::set_var("RUST_LOG", "b0xx_viewer=info");
+        std::env::set_var("RUST_LOG", "b0xx_updater=info");
     }
 
     pretty_env_logger::init();
@@ -36,10 +36,17 @@ fn main() -> Result<(), error::UpdaterError> {
             print!("{}", device);
         }
 
-        return Ok(())
+        return Ok(());
     }
 
     let dry_run = matches.is_present("dry_run");
+    if dry_run {
+        debug!("Dry run enabled");
+    }
+
+    if !patcher::Patcher::detect_avrdude() {
+        std::process::exit(1);
+    }
 
     if let Some(device_id) = matches.value_of("device").take() {
         if let Some(patch_version) = matches.value_of("patch_version").take() {
@@ -53,6 +60,7 @@ fn main() -> Result<(), error::UpdaterError> {
                     if dry_run {
                         patcher.enable_dry_run();
                     }
+                    info!("Applying patch...");
                     patcher.patch()?;
                     info!("Patch successfully applied!");
                 }
@@ -63,7 +71,6 @@ fn main() -> Result<(), error::UpdaterError> {
     } else {
         error!("Device has not been selected!");
     }
-
 
     Ok(())
 }

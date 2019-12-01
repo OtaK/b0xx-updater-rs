@@ -19,6 +19,16 @@ pub enum UpdaterError {
     DeserializationError(toml::de::Error),
     #[fail(display = "SerializationError: {}", _0)]
     SerializationError(toml::ser::Error),
+    #[fail(display = "SerialPortError: {}", _0)]
+    SerialPortError(serialport::Error),
+    #[fail(
+        display = "A B0XX could not be found on your system. Are you sure it's connected through the USB port?"
+    )]
+    B0xxNotFound,
+    #[fail(
+        display = "The DFU serial port has not been found upon DFU activation. Is your B0XX still plugged?"
+    )]
+    DfuTtyNotFound,
     #[fail(display = "An unknown error occured, sorry")]
     UnknownError,
 }
@@ -33,4 +43,9 @@ from_error!(
     toml::ser::Error,
     UpdaterError,
     UpdaterError::SerializationError
+);
+from_error!(
+    serialport::Error,
+    UpdaterError,
+    UpdaterError::SerialPortError
 );

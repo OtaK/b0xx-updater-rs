@@ -9,7 +9,7 @@ use clap::{clap_app, crate_authors, crate_description, crate_version};
 
 fn main() -> Result<(), error::UpdaterError> {
     if let Ok(env) = std::env::var("RUST_LOG") {
-        std::env::set_var("RUST_LOG", format!("b0xx_updater=info,{}", env));
+        //std::env::set_var("RUST_LOG", format!("b0xx_updater=info,{}", env));
     } else {
         std::env::set_var("RUST_LOG", "b0xx_updater=info");
     }

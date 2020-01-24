@@ -71,11 +71,13 @@ impl Patcher {
         }
 
         let ports = serialport::available_ports()?;
+        debug!("Ports: {:#?}", ports);
         self.old_ports = Some(ports.iter().map(|p| p.port_name.clone()).collect());
 
         let b0xx_port = ports
             .into_iter()
             .find(move |port| {
+                debug!("Found TTY port: {:?}", port);
                 if let serialport::SerialPortType::UsbPort(portinfo) = &port.port_type {
                     if portinfo.vid == 9025 && portinfo.pid == 32822 {
                         return true;
@@ -101,19 +103,21 @@ impl Patcher {
         // Force b0xx detection in case it hasn't been performed yet
         let _ = self.detect_b0xx()?;
 
+        let tty = self.custom_tty.as_ref().unwrap();
+
         // Enable DFU
         let dfu_serial_settings = serialport::SerialPortSettings {
             baud_rate: 1200,
             ..Default::default()
         };
-        let tty = self.custom_tty.as_ref().unwrap();
+
         debug!(
             "Opening DFU mode on port {} with {:#?}",
             tty, dfu_serial_settings
         );
-        let dfu_activation_port = serialport::open_with_settings(tty, &dfu_serial_settings)?;
+        let dfu_activation_port = Some(serialport::open_with_settings(tty, &dfu_serial_settings)?);
         debug!("DFU mode started, sleeping 1.5 seconds for new port to appear...");
-        std::thread::sleep(std::time::Duration::from_millis(1500));
+        std::thread::sleep(std::time::Duration::from_millis(3000));
         debug!("Scanning new ports...");
         let ports = serialport::available_ports()?;
         debug!("New port list: {:#?}", ports);
@@ -131,6 +135,7 @@ impl Patcher {
         };
 
         debug!("Found DFU TTY: {:#?}", dfu_tty);
+
         // Apply patch
         let mut cmd = std::process::Command::new(if cfg!(windows) {
             "./vendor/avrdude/windows/avrdude.exe"
@@ -158,6 +163,7 @@ impl Patcher {
 
         if self.dry_run {
             info!("About to perform command: {:?}", cmd);
+            info!("Since dry run is enabled and your B0XX has been put in DFU mode, please unplug and plug it back.");
         } else {
             let status = cmd.spawn()?.wait_with_output()?;
 

@@ -73,6 +73,7 @@ impl Device {
     pub fn load_hardware_list() -> Result<Vec<Self>, UpdaterError> {
         let map: std::collections::HashMap<String, Device> =
             toml::from_slice(&std::fs::read("assets/hardware.toml")?)?;
+
         Ok(map.into_iter().map(|(_, v)| v).collect())
     }
 

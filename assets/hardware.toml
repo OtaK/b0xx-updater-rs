@@ -16,6 +16,22 @@ legal = true
 filename = "B0XX_r1_2.11.hex"
 filefmt = "i"
 
+[[r1.firmwares]]
+version = "2.13"
+date = 2019-12-26T11:00:00Z
+active = true
+legal = true
+filename = "B0XX_r1_2.13.hex"
+filefmt = "i"
+
+[[r1.firmwares]]
+version = "2.14"
+date = 2020-01-01T06:47:00Z
+active = true
+legal = true
+filename = "B0XX_r1_2.14.hex"
+filefmt = "i"
+
 [r2]
 name = "B0XX r2"
 id = "r2"
